@@ -13,7 +13,7 @@ import com.zneik.wavesblockexplorer.R;
 
 import java.util.List;
 
-public class HeadersAdapter extends RecyclerView.Adapter<HaedersViewHolder> {
+public class HeadersAdapter extends RecyclerView.Adapter<HeadersViewHolder> {
     List<Header> headers;
 
     public HeadersAdapter() {
@@ -28,14 +28,14 @@ public class HeadersAdapter extends RecyclerView.Adapter<HaedersViewHolder> {
 
     @NonNull
     @Override
-    public HaedersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public HeadersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_block_item, parent,false);
-        return new HaedersViewHolder(view);
+        return new HeadersViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull HaedersViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull HeadersViewHolder holder, int position) {
         holder.bind(headers.get(position));
     }
 

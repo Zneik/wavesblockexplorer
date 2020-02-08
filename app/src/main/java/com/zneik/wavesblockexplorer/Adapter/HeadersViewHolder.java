@@ -6,6 +6,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.zneik.wavesblockexplorer.Helper.Helper;
 import com.zneik.wavesblockexplorer.Model.Header;
 import com.zneik.wavesblockexplorer.R;
 
@@ -14,13 +15,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class HaedersViewHolder extends RecyclerView.ViewHolder {
-    public static final String TIMESTAMP_FORMAT = "dd.MM.yyyy HH:mm:ss";
+public class HeadersViewHolder extends RecyclerView.ViewHolder {
     private TextView tvBlockNTransaction;
     private TextView tvSignature;
     private TextView tvDate;
 
-    public HaedersViewHolder(@NonNull View itemView) {
+    public HeadersViewHolder(@NonNull View itemView) {
         super(itemView);
 
         tvBlockNTransaction = itemView.findViewById(R.id.tvBlockNTransaction);
@@ -37,9 +37,7 @@ public class HaedersViewHolder extends RecyclerView.ViewHolder {
         tvSignature.setText(itemView.getResources()
                 .getString(R.string.signature, header.getSignature()));
 
-        Timestamp tsHeaders = new Timestamp(header.getTimestamp());
-        String tsFormat = new SimpleDateFormat(TIMESTAMP_FORMAT, new Locale("ru"))
-                .format(tsHeaders);
+        String tsFormat = Helper.getStringFromTimestamp(header.getTimestamp());
         tvDate.setText(itemView.getResources()
                 .getString(R.string.date, tsFormat));
 

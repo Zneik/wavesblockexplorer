@@ -19,10 +19,12 @@ import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.observers.DisposableSingleObserver;
 
 public class BlockListViewModel extends ViewModel {
     private static final Integer LOAD_BLOCKS_COUNT = 100;
@@ -48,22 +50,15 @@ public class BlockListViewModel extends ViewModel {
     @SuppressLint("CheckResult")
     public void updateLastBlockHeight() {
 
-        Observable
+        compositeDisposable.add(Single
 //                .interval(0, 3, TimeUnit.SECONDS)
                 .timer(5, TimeUnit.SECONDS)
-                .flatMap(emiter -> {
-                    return this.blockAPI.getBlockHeight();
-                })
+                .flatMap(emiter -> this.blockAPI.getBlockHeight())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<BlockHeight>() {
+                .subscribeWith(new DisposableSingleObserver<BlockHeight>() {
                     @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(BlockHeight blockHeight) {
+                    public void onSuccess(BlockHeight blockHeight) {
                         lastBlockHeight.setValue(blockHeight);
                     }
 
@@ -71,36 +66,7 @@ public class BlockListViewModel extends ViewModel {
                     public void onError(Throwable e) {
 
                     }
-
-                    @Override
-                    public void onComplete() {
-                    }
-                });
-
-//        this.blockAPI.getBlockHeight()
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .doOnError(throwable -> Log.i("TTT", Objects.requireNonNull(throwable.getMessage())))
-//                .subscribe(new Observer<BlockHeight>() {
-//                    @Override
-//                    public void onSubscribe(Disposable d) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onNext(BlockHeight blockHeight) {
-//                        lastBlockHeight.setValue(blockHeight);
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//                    }
-//                });
+                }));
     }
 
     @SuppressLint("CheckResult")
@@ -141,38 +107,6 @@ public class BlockListViewModel extends ViewModel {
 
     }
 
-    public void loadBlockInfo() {
-        this.blockAPI.getHeightAt(this.getLastBlockHeight().getValue().getHeight())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(th -> Log.i("TTT", th.getMessage()))
-                .subscribe(new Observer<Transaction>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(Transaction transaction) {
-                        Log.i("TTT", transaction.getHeight().toString());
-                        Log.i("TTT", transaction.getBlocksize().toString());
-                        Log.i("TTT", transaction.getSignature().toString());
-                        Log.i("TTT", transaction.getReward().toString());
-                        Log.i("TTT", transaction.getVersion().toString());
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-
-    }
 
     @Override
     protected void onCleared() {

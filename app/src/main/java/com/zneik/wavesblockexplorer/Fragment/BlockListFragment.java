@@ -34,14 +34,11 @@ public class BlockListFragment extends Fragment {
 
         blockListViewModel = new ViewModelProvider(this).get(BlockListViewModel.class);
         blockListViewModel.getLastBlockHeight().observe(this, it -> {
-//            Toast.makeText(getContext(), String.valueOf(it.getHeight()), Toast.LENGTH_SHORT).show();
             if (it != null)
                 blockListViewModel.loadBlocksLast();
-            blockListViewModel.loadBlockInfo();
         });
 
         blockListViewModel.getHeadersList().observe(this, it -> {
-//            Log.i("TTT", String.valueOf(it.size()));
             headersAdapter.setHeaders(it);
         });
     }
