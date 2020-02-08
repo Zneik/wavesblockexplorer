@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.zneik.wavesblockexplorer.Model.BlockHeight;
+import com.zneik.wavesblockexplorer.Model.BlockInfo.Transaction;
 import com.zneik.wavesblockexplorer.Model.Header;
 import com.zneik.wavesblockexplorer.NetworkService.BlockAPI;
 import com.zneik.wavesblockexplorer.NetworkService.BlockService;
@@ -125,6 +126,39 @@ public class BlockListViewModel extends ViewModel {
                         newHeaders.addAll(headers);
                         headersList.setValue(newHeaders);
                         Log.i("TTT", String.valueOf(headersList.getValue().size()));
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+    }
+
+    public void loadBlockInfo() {
+        this.blockAPI.getHeightAt(this.getLastBlockHeight().getValue().getHeight())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(th -> Log.i("TTT", th.getMessage()))
+                .subscribe(new Observer<Transaction>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(Transaction transaction) {
+                        Log.i("TTT", transaction.getHeight().toString());
+                        Log.i("TTT", transaction.getBlocksize().toString());
+                        Log.i("TTT", transaction.getSignature().toString());
+                        Log.i("TTT", transaction.getReward().toString());
+                        Log.i("TTT", transaction.getVersion().toString());
                     }
 
                     @Override

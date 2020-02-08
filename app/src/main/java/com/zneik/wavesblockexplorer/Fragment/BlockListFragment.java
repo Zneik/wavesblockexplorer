@@ -1,11 +1,9 @@
 package com.zneik.wavesblockexplorer.Fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,6 +37,7 @@ public class BlockListFragment extends Fragment {
 //            Toast.makeText(getContext(), String.valueOf(it.getHeight()), Toast.LENGTH_SHORT).show();
             if (it != null)
                 blockListViewModel.loadBlocksLast();
+            blockListViewModel.loadBlockInfo();
         });
 
         blockListViewModel.getHeadersList().observe(this, it -> {

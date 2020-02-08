@@ -1,5 +1,6 @@
 package com.zneik.wavesblockexplorer.NetworkService;
 
+import com.zneik.wavesblockexplorer.Model.BlockInfo.Transaction;
 import com.zneik.wavesblockexplorer.Model.BlockHeight;
 import com.zneik.wavesblockexplorer.Model.Header;
 
@@ -16,5 +17,8 @@ public interface BlockAPI {
 
     @GET("/blocks/headers/seq/{from}/{to}")
     public Observable<List<Header>> getHeaders(@Path("from") Integer from, @Path("to") Integer to);
+
+    @GET("/blocks/at/{height}")
+    public Observable<Transaction> getHeightAt(@Path("height") Integer height);
 
 }
