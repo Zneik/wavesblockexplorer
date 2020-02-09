@@ -3,7 +3,7 @@ package com.zneik.wavesblockexplorer.Model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Header {
+public class Header implements Comparable<Header> {
 
     @SerializedName("blocksize")
     @Expose
@@ -150,5 +150,10 @@ public class Header {
 
     public void setHeight(Integer height) {
         this.height = height;
+    }
+
+    @Override
+    public int compareTo(Header o) {
+        return this.getHeight().compareTo(o.getHeight());
     }
 }

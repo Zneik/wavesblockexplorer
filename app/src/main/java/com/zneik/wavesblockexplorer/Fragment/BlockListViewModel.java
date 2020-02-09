@@ -13,47 +13,45 @@ import com.zneik.wavesblockexplorer.NetworkService.BlockAPI;
 import com.zneik.wavesblockexplorer.NetworkService.BlockService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.observers.DisposableSingleObserver;
 
 public class BlockListViewModel extends ViewModel {
     private static final Integer LOAD_BLOCKS_COUNT = 100;
+    public static final int DOWNLOAD_INTERVAL = 10;
 
     private CompositeDisposable compositeDisposable;
     private MutableLiveData<BlockHeight> lastBlockHeight;
     private BlockAPI blockAPI;
     private MutableLiveData<List<Header>> headersList;
+    private MutableLiveData<Integer> downloadPosition;
 
     public BlockListViewModel() {
         this.lastBlockHeight = new MutableLiveData<>();
         this.compositeDisposable = new CompositeDisposable();
         this.headersList = new MutableLiveData<>();
         this.headersList.setValue(new ArrayList<>());
+        this.downloadPosition = new MutableLiveData<>();
+        this.downloadPosition.setValue(0);
 
         this.blockAPI = BlockService.getInstance()
                 .getBlockAPI();
 
         updateLastBlockHeight();
-//        loadBlocksLast();
     }
 
     @SuppressLint("CheckResult")
     public void updateLastBlockHeight() {
 
-        compositeDisposable.add(Single
-//                .interval(0, 3, TimeUnit.SECONDS)
-                .timer(5, TimeUnit.SECONDS)
-                .flatMap(emiter -> this.blockAPI.getBlockHeight())
+        Single<BlockHeight> single = this.blockAPI.getBlockHeight();
+
+        compositeDisposable.add(single
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSingleObserver<BlockHeight>() {
@@ -70,40 +68,38 @@ public class BlockListViewModel extends ViewModel {
     }
 
     @SuppressLint("CheckResult")
-    public void loadBlocksLast() {
-        final int from = this.getLastBlockHeight().getValue().getHeight() - 10;
-        final int to = this.getLastBlockHeight().getValue().getHeight();
-        Log.i("TTT","from " + String.valueOf(from));
-        Log.i("TTT", "to " + String.valueOf(to));
-        this.blockAPI.getHeaders(from, to)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(throwable -> Log.d("TTT", throwable.getMessage()))
-                .subscribe(new Observer<List<Header>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
+    public void loadBlocks() {
 
-                    }
+        Integer from;
+        Integer to;
 
-                    @Override
-                    public void onNext(List<Header> headers) {
-                        Log.i("TTT", String.valueOf(headers.size()));
-                        List<Header> newHeaders = headersList.getValue();
-                        newHeaders.addAll(headers);
-                        headersList.setValue(newHeaders);
-                        Log.i("TTT", String.valueOf(headersList.getValue().size()));
-                    }
+        from = this.getLastBlockHeight().getValue().getHeight()
+                - this.downloadPosition.getValue() - DOWNLOAD_INTERVAL;
+        to = this.getLastBlockHeight().getValue().getHeight() - this.downloadPosition.getValue();
 
-                    @Override
-                    public void onError(Throwable e) {
 
-                    }
+        this.downloadPosition.setValue(
+                this.downloadPosition.getValue() + DOWNLOAD_INTERVAL  + 1
+        );
 
-                    @Override
-                    public void onComplete() {
+//        Log.i("TTT", "interval " + this.downloadPosition.getValue()+ "from " + from + " to " + to);
+        compositeDisposable.add(
+                this.blockAPI.getHeaders(from, to)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableSingleObserver<List<Header>>() {
+                                           @Override
+                                           public void onSuccess(List<Header> headers) {
+                                               Collections.reverse(headers);
+                                               headersList.setValue(headers);
+                                           }
 
-                    }
-                });
+                                           @Override
+                                           public void onError(Throwable e) {
+
+                                           }
+                                       }
+                        ));
 
     }
 

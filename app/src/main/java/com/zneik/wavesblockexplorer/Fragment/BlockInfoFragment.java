@@ -55,6 +55,12 @@ public class BlockInfoFragment extends Fragment {
 
         initViewElement(fView);
 
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            blockInfoViewModel.getHeight().setValue(arguments.getInt(ARG_HEIGHT));
+        }
+
+        blockInfoViewModel.loadBlockInfo();
         blockInfoViewModel.getBlockTransaction().observe(getViewLifecycleOwner(), this::setTransactionTV);
 
         return fView;

@@ -6,40 +6,46 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.zneik.wavesblockexplorer.Fragment.BlockInfoFragment;
 import com.zneik.wavesblockexplorer.Helper.Helper;
 import com.zneik.wavesblockexplorer.Model.Header;
 import com.zneik.wavesblockexplorer.R;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-public class HeadersViewHolder extends RecyclerView.ViewHolder {
+public class HeadersViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     private TextView tvBlockNTransaction;
     private TextView tvSignature;
     private TextView tvDate;
 
-    public HeadersViewHolder(@NonNull View itemView) {
+    private Header header;
+    private BlockInfoFragment.attachBlockInfoFragment openFragment;
+
+
+    public HeadersViewHolder(@NonNull View itemView,
+                             BlockInfoFragment.attachBlockInfoFragment openFragment) {
         super(itemView);
+        this.openFragment = openFragment;
 
         tvBlockNTransaction = itemView.findViewById(R.id.tvBlockNTransaction);
         tvSignature = itemView.findViewById(R.id.tvSignature);
         tvDate = itemView.findViewById(R.id.tvDate);
+        itemView.setOnClickListener(this);
     }
 
     public void bind(Header header) {
+        this.header = header;
         tvBlockNTransaction.setText(itemView.getResources()
                 .getString(R.string.blockNTransaction,
-                        header.getBlocksize(),
+                        header.getHeight(),
                         header.getTransactionCount()));
-
         tvSignature.setText(itemView.getResources()
                 .getString(R.string.signature, header.getSignature()));
-
         String tsFormat = Helper.getStringFromTimestamp(header.getTimestamp());
         tvDate.setText(itemView.getResources()
                 .getString(R.string.date, tsFormat));
+    }
 
+    @Override
+    public void onClick(View v) {
+        openFragment.attachBlockInfoFragment(this.header.getHeight());
     }
 }

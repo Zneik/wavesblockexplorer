@@ -12,15 +12,18 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.zneik.wavesblockexplorer.Activity.MainActivity;
 import com.zneik.wavesblockexplorer.Adapter.HeadersAdapter;
 import com.zneik.wavesblockexplorer.R;
 
-public class BlockListFragment extends Fragment {
+public class BlockListFragment extends Fragment
+implements HeadersAdapter.EndScroll{
     private RecyclerView rvBlock;
 
     private BlockListViewModel blockListViewModel;
 
     private HeadersAdapter headersAdapter;
+    private BlockInfoFragment.attachBlockInfoFragment attachBlockInfoFragmentListener;
 
     public static Fragment newInstance() {
         return new BlockListFragment();
@@ -30,17 +33,20 @@ public class BlockListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        headersAdapter = new HeadersAdapter();
+        attachBlockInfoFragmentListener = (MainActivity)getActivity();
+        headersAdapter = new HeadersAdapter(attachBlockInfoFragmentListener);
+        headersAdapter.setEndScrollListener(this);
 
         blockListViewModel = new ViewModelProvider(this).get(BlockListViewModel.class);
         blockListViewModel.getLastBlockHeight().observe(this, it -> {
             if (it != null)
-                blockListViewModel.loadBlocksLast();
+                blockListViewModel.loadBlocks();
         });
 
         blockListViewModel.getHeadersList().observe(this, it -> {
-            headersAdapter.setHeaders(it);
+            headersAdapter.addHeaders(it);
         });
+
     }
 
     @Nullable
@@ -60,6 +66,14 @@ public class BlockListFragment extends Fragment {
         this.rvBlock = view.findViewById(R.id.rvBlock);
         this.rvBlock.setLayoutManager(new LinearLayoutManager(getContext()));
         this.rvBlock.setAdapter(this.headersAdapter);
+    }
+
+    private void initListener() {
+    }
+
+    @Override
+    public void loadOnEndScroll() {
+        blockListViewModel.loadBlocks();
     }
 
     public interface attachBlockListFragment {

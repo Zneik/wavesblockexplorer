@@ -17,9 +17,9 @@ public interface BlockAPI {
     public Single<BlockHeight> getBlockHeight();
 
     @GET("/blocks/headers/seq/{from}/{to}")
-    public Observable<List<Header>> getHeaders(@Path("from") Integer from, @Path("to") Integer to);
+    public Single<List<Header>> getHeaders(@Path("from") Integer from, @Path("to") Integer to);
 
     @GET("/blocks/at/{height}")
-    public Observable<Transaction> getHeightAt(@Path("height") Integer height);
+    public Single<Transaction> getHeightAt(@Path("height") Integer height);
 
 }
