@@ -13,20 +13,24 @@ import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class BlockInfoViewModel extends ViewModel {
+
     private MutableLiveData<Integer> height;
     private MutableLiveData<Transaction> blockTransaction;
+    private MutableLiveData<Boolean> loading;
     private BlockAPI blockAPI;
     private CompositeDisposable compositeDisposable;
 
     public BlockInfoViewModel() {
         height = new MutableLiveData<>();
         blockTransaction = new MutableLiveData<>();
+        loading = new MutableLiveData<>();
         compositeDisposable = new CompositeDisposable();
         blockAPI = BlockService.getInstance()
                 .getBlockAPI();
     }
 
     public void loadBlockInfo() {
+        loading.setValue(true);
         compositeDisposable.add(
                 this.blockAPI.getHeightAt(this.height.getValue())
                         .subscribeOn(Schedulers.io())
@@ -35,11 +39,12 @@ public class BlockInfoViewModel extends ViewModel {
                             @Override
                             public void onSuccess(Transaction transaction) {
                                 blockTransaction.setValue(transaction);
+                                loading.setValue(false);
                             }
 
                             @Override
                             public void onError(Throwable e) {
-
+                                loading.setValue(false);
                             }
                         })
         );
@@ -61,6 +66,14 @@ public class BlockInfoViewModel extends ViewModel {
 
     public void setBlockTransaction(MutableLiveData<Transaction> blockTransaction) {
         this.blockTransaction = blockTransaction;
+    }
+
+    public MutableLiveData<Boolean> getLoading() {
+        return loading;
+    }
+
+    public void setLoading(MutableLiveData<Boolean> loading) {
+        this.loading = loading;
     }
 
     @Override

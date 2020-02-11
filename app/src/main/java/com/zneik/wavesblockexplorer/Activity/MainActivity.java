@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity
     public void attachBlockListFragment() {
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .addToBackStack(null)
+//                .addToBackStack(null)
                 .replace(R.id.main_fragment_container, BlockListFragment.newInstance())
                 .commit();
     }

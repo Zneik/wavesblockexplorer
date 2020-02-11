@@ -1,9 +1,18 @@
 package com.zneik.wavesblockexplorer.Fragment;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,6 +28,8 @@ public class BlockInfoFragment extends Fragment {
     public static final String ARG_HEIGHT = "argHeight";
 
     //ui element
+    private LinearLayout llBlockInfo;
+    private ProgressBar pbLoadBlockInfo;
     private TextView tvHeight;
     private TextView tvVersion;
     private TextView tvTimestamp;
@@ -52,6 +63,7 @@ public class BlockInfoFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View fView = inflater.inflate(R.layout.fragment_block_info, container, false);
+//        blockInfoViewModel.getLoading().setValue(false);
 
         initViewElement(fView);
 
@@ -60,36 +72,57 @@ public class BlockInfoFragment extends Fragment {
             blockInfoViewModel.getHeight().setValue(arguments.getInt(ARG_HEIGHT));
         }
 
-        blockInfoViewModel.loadBlockInfo();
         blockInfoViewModel.getBlockTransaction().observe(getViewLifecycleOwner(), this::setTransactionTV);
+        blockInfoViewModel.getLoading().observe(getViewLifecycleOwner(), loaded -> {
+            if (loaded) {
+                llBlockInfo.setVisibility(View.GONE);
+                pbLoadBlockInfo.setVisibility(View.VISIBLE);
+            } else {
+                pbLoadBlockInfo.setVisibility(View.GONE);
+                llBlockInfo.setVisibility(View.VISIBLE);
+            }
+        });
 
+        blockInfoViewModel.loadBlockInfo();
         return fView;
     }
 
+    private void setBoldPrefix(TextView view, String source) {
+        SpannableString ss = new SpannableString(source);
+        StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
+        Log.i("TTT", String.valueOf(source.indexOf(":")));
+        ss.setSpan(boldSpan, 0, source.indexOf(":") + 1, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        Log.i("TTT", ss.toString());
+        view.setText(ss);
+//        return ss.toString();
+    }
+
     private void setTransactionTV(Transaction transaction) {
-        tvHeight.setText(getString(R.string.block_height,
+        setBoldPrefix(tvHeight, getString(R.string.block_height,
                 String.valueOf(transaction.getHeight())));
-        tvVersion.setText(getString(R.string.block_version,
+        setBoldPrefix(tvVersion, getString(R.string.block_version,
                 String.valueOf(transaction.getVersion())));
-        tvTimestamp.setText(getString(R.string.block_timestamp,
+        setBoldPrefix(tvTimestamp, getString(R.string.block_timestamp,
                 Helper.getStringFromTimestamp(transaction.getTimestamp())));
-        tvTransactionCount.setText(getString(R.string.block_transactions,
+        setBoldPrefix(tvTransactionCount, getString(R.string.block_transactions,
                 String.valueOf(transaction.getTransactionCount())));
-        tvParentBlock.setText(getString(R.string.block_parent_block,
+        setBoldPrefix(tvParentBlock, getString(R.string.block_parent_block,
                 String.valueOf(transaction.getReference())));
-        tvGenerator.setText(getString(R.string.block_generator,
+        setBoldPrefix(tvGenerator, getString(R.string.block_generator,
                 String.valueOf(transaction.getGenerator())));
-        tvSignature.setText(getString(R.string.block_signature,
+        setBoldPrefix(tvSignature, getString(R.string.block_signature,
                 String.valueOf(transaction.getSignature())));
-        tvSize.setText(getString(R.string.block_size,
+        setBoldPrefix(tvSize, getString(R.string.block_size,
                 String.valueOf(transaction.getBlocksize())));
-        tvTotalFee.setText(getString(R.string.block_total_fee,
+        setBoldPrefix(tvTotalFee, getString(R.string.block_total_fee,
                 String.valueOf(transaction.getTotalFee())));
-        tvReward.setText(getString(R.string.block_reward,
+        setBoldPrefix(tvReward, getString(R.string.block_reward,
                 String.valueOf(transaction.getReward())));
     }
 
     private void initViewElement(View view) {
+        llBlockInfo = view.findViewById(R.id.llBlockInfo);
+        pbLoadBlockInfo = view.findViewById(R.id.pbLoadBlockInfo);
         tvHeight = view.findViewById(R.id.tvHeight);
         tvVersion = view.findViewById(R.id.tvVersion);
         tvTimestamp = view.findViewById(R.id.tvTimestamp);
