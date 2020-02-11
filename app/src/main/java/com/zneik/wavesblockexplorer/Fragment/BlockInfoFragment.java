@@ -90,9 +90,7 @@ public class BlockInfoFragment extends Fragment {
     private void setBoldPrefix(TextView view, String source) {
         SpannableString ss = new SpannableString(source);
         StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
-        Log.i("TTT", String.valueOf(source.indexOf(":")));
         ss.setSpan(boldSpan, 0, source.indexOf(":") + 1, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-        Log.i("TTT", ss.toString());
         view.setText(ss);
 //        return ss.toString();
     }
