@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,6 +30,7 @@ public class BlockInfoFragment extends Fragment {
 
     //ui element
     private LinearLayout llBlockInfo;
+    private ScrollView svBlockInfo;
     private ProgressBar pbLoadBlockInfo;
     private TextView tvHeight;
     private TextView tvVersion;
@@ -75,11 +77,13 @@ public class BlockInfoFragment extends Fragment {
         blockInfoViewModel.getBlockTransaction().observe(getViewLifecycleOwner(), this::setTransactionTV);
         blockInfoViewModel.getLoading().observe(getViewLifecycleOwner(), loaded -> {
             if (loaded) {
-                llBlockInfo.setVisibility(View.GONE);
+                svBlockInfo.setVisibility(View.GONE);
+//                llBlockInfo.setVisibility(View.GONE);
                 pbLoadBlockInfo.setVisibility(View.VISIBLE);
             } else {
                 pbLoadBlockInfo.setVisibility(View.GONE);
-                llBlockInfo.setVisibility(View.VISIBLE);
+//                llBlockInfo.setVisibility(View.VISIBLE);
+                svBlockInfo.setVisibility(View.VISIBLE);
             }
         });
 
@@ -119,6 +123,7 @@ public class BlockInfoFragment extends Fragment {
     }
 
     private void initViewElement(View view) {
+        svBlockInfo = view.findViewById(R.id.svBlockInfo);
         llBlockInfo = view.findViewById(R.id.llBlockInfo);
         pbLoadBlockInfo = view.findViewById(R.id.pbLoadBlockInfo);
         tvHeight = view.findViewById(R.id.tvHeight);

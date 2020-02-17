@@ -20,7 +20,8 @@ public class MainActivity extends AppCompatActivity
 
 //        setTitle("Waves block explorer");
 
-        attachBlockListFragment();
+        if (getSupportFragmentManager().getBackStackEntryCount() <= 0)
+            attachBlockListFragment();
     }
 
     @Override
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
 //                .addToBackStack(null)
-                .replace(R.id.main_fragment_container, BlockListFragment.newInstance())
+                .add(R.id.main_fragment_container, BlockListFragment.newInstance())
                 .commit();
     }
 
