@@ -9,18 +9,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.zneik.wavesblockexplorer.Activity.MainActivity;
 import com.zneik.wavesblockexplorer.Adapter.HeadersAdapter;
 import com.zneik.wavesblockexplorer.R;
+import com.zneik.wavesblockexplorer.di.BlockListModule;
+import com.zneik.wavesblockexplorer.di.DaggerAppComponent;
+
+import javax.inject.Inject;
 
 public class BlockListFragment extends Fragment
 implements HeadersAdapter.EndScroll{
     private RecyclerView rvBlock;
 
-    private BlockListViewModel blockListViewModel;
+    @Inject
+    public BlockListViewModel blockListViewModel;
 
     private HeadersAdapter headersAdapter;
     private BlockInfoFragment.attachBlockInfoFragment attachBlockInfoFragmentListener;
@@ -31,13 +37,18 @@ implements HeadersAdapter.EndScroll{
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        DaggerAppComponent.builder()
+                .blockListModule(new BlockListModule(this))
+                .build()
+                .inject(this);
         super.onCreate(savedInstanceState);
+
 
         attachBlockInfoFragmentListener = (MainActivity)getActivity();
         headersAdapter = new HeadersAdapter(attachBlockInfoFragmentListener);
         headersAdapter.setEndScrollListener(this);
 
-        blockListViewModel = new ViewModelProvider(this).get(BlockListViewModel.class);
+//        blockListViewModel = new ViewModelProvider(this).get(BlockListViewModel.class);
         blockListViewModel.getLastBlockHeight().observe(this, it -> {
             if (it != null)
                 blockListViewModel.loadBlocks();
