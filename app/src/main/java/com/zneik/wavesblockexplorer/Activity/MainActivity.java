@@ -33,13 +33,13 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (getSupportFragmentManager().getBackStackEntryCount() <= 0)
-            attachBlockListFragment();
+        attachBlockListFragment();
     }
 
     @Override
     public void attachBlockListFragment() {
-        AppInit.INSTANCE.getRouter().navigateTo((new BlockListScreen()));
+        if (getSupportFragmentManager().getBackStackEntryCount() <= 0)
+            AppInit.INSTANCE.getRouter().navigateTo((new BlockListScreen()));
 //        FragmentManager fm = getSupportFragmentManager();
 //        fm.beginTransaction()
 //                .add(R.id.main_fragment_container, BlockListFragment.newInstance())
@@ -66,5 +66,12 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         AppInit.INSTANCE.getNavigatorHolder().removeNavigator();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(getSupportFragmentManager().getBackStackEntryCount() == 1)
+            finish();
+        super.onBackPressed();
     }
 }
