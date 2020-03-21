@@ -1,6 +1,9 @@
 package com.zneik.wavesblockexplorer.Fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,11 +11,10 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.zneik.wavesblockexplorer.Activity.MainActivity;
 import com.zneik.wavesblockexplorer.Adapter.HeadersAdapter;
 import com.zneik.wavesblockexplorer.R;
@@ -22,7 +24,7 @@ import com.zneik.wavesblockexplorer.di.DaggerAppComponent;
 import javax.inject.Inject;
 
 public class BlockListFragment extends Fragment
-implements HeadersAdapter.EndScroll{
+        implements HeadersAdapter.EndScroll {
     private RecyclerView rvBlock;
 
     @Inject
@@ -30,6 +32,7 @@ implements HeadersAdapter.EndScroll{
 
     private HeadersAdapter headersAdapter;
     private BlockInfoFragment.attachBlockInfoFragment attachBlockInfoFragmentListener;
+    private Snackbar loadingSnackbar;
 
     public static Fragment newInstance() {
         return new BlockListFragment();
@@ -44,7 +47,7 @@ implements HeadersAdapter.EndScroll{
         super.onCreate(savedInstanceState);
 
 
-        attachBlockInfoFragmentListener = (MainActivity)getActivity();
+        attachBlockInfoFragmentListener = (MainActivity) getActivity();
         headersAdapter = new HeadersAdapter(attachBlockInfoFragmentListener);
         headersAdapter.setEndScrollListener(this);
 
@@ -57,6 +60,14 @@ implements HeadersAdapter.EndScroll{
         blockListViewModel.getHeadersList().observe(this, it -> {
             headersAdapter.addHeaders(it);
         });
+        blockListViewModel.getIsDownloading().observe(this, it -> {
+            if (it) {
+                this.visibleLoadin();
+            } else {
+                if (loadingSnackbar != null)
+                    this.hideLoadin();
+            }
+        });
 
     }
 
@@ -66,9 +77,7 @@ implements HeadersAdapter.EndScroll{
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View fView = inflater.inflate(R.layout.fragment_block_list, container, false);
-
         initViewElement(fView);
-
 
         return fView;
     }
@@ -83,8 +92,27 @@ implements HeadersAdapter.EndScroll{
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        attachBlockInfoFragmentListener = null;
+    }
+
+    @Override
     public void loadOnEndScroll() {
         blockListViewModel.loadBlocks();
+    }
+
+    @SuppressLint("ResourceAsColor")
+    private void visibleLoadin() {
+        loadingSnackbar = Snackbar.make(getView(),
+                Html.fromHtml("<font color=\"#ffffff\">Loading</font>"),
+                Snackbar.LENGTH_LONG)
+                .setDuration(10)
+                .setActionTextColor(R.color.snackbarText);
+        loadingSnackbar.show();
+    }
+
+    private void hideLoadin() {
     }
 
     public interface attachBlockListFragment {

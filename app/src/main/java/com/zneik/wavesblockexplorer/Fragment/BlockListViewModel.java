@@ -31,6 +31,7 @@ public class BlockListViewModel extends ViewModel {
     private BlockAPI blockAPI;
     private MutableLiveData<List<Header>> headersList;
     private MutableLiveData<Integer> downloadPosition;
+    private MutableLiveData<Boolean> isDownloading;
 
     public BlockListViewModel() {
         this.lastBlockHeight = new MutableLiveData<>();
@@ -38,10 +39,13 @@ public class BlockListViewModel extends ViewModel {
         this.headersList = new MutableLiveData<>();
         this.headersList.setValue(new ArrayList<>());
         this.downloadPosition = new MutableLiveData<>();
+        this.isDownloading = new MutableLiveData<>();
+
         this.downloadPosition.setValue(0);
 
         this.blockAPI = BlockService.getInstance()
                 .getBlockAPI();
+        this.isDownloading.setValue(false);
 
         updateLastBlockHeight();
     }
@@ -81,8 +85,7 @@ public class BlockListViewModel extends ViewModel {
         this.downloadPosition.setValue(
                 this.downloadPosition.getValue() + DOWNLOAD_INTERVAL  + 1
         );
-
-//        Log.i("TTT", "interval " + this.downloadPosition.getValue()+ "from " + from + " to " + to);
+        isDownloading.setValue(true);
         compositeDisposable.add(
                 this.blockAPI.getHeaders(from, to)
                         .subscribeOn(Schedulers.io())
@@ -92,11 +95,12 @@ public class BlockListViewModel extends ViewModel {
                                            public void onSuccess(List<Header> headers) {
                                                Collections.reverse(headers);
                                                headersList.setValue(headers);
+                                               isDownloading.setValue(false);
                                            }
 
                                            @Override
                                            public void onError(Throwable e) {
-
+                                               isDownloading.setValue(false);
                                            }
                                        }
                         ));
@@ -124,5 +128,13 @@ public class BlockListViewModel extends ViewModel {
 
     public void setLastBlockHeight(MutableLiveData<BlockHeight> lastBlockHeight) {
         this.lastBlockHeight = lastBlockHeight;
+    }
+
+    public MutableLiveData<Boolean> getIsDownloading() {
+        return isDownloading;
+    }
+
+    public void setIsDownloading(MutableLiveData<Boolean> isDownloading) {
+        this.isDownloading = isDownloading;
     }
 }
