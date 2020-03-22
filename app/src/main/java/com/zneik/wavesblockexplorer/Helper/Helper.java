@@ -12,4 +12,12 @@ public class Helper {
         return new SimpleDateFormat(TIMESTAMP_FORMAT, new Locale("ru"))
                 .format(tsHeaders);
     }
+
+    public static Integer isInteger(String numberStr) {
+        try {
+            return Integer.parseInt(numberStr);
+        } catch (Exception exception) {
+            return null;
+        }
+    }
 }

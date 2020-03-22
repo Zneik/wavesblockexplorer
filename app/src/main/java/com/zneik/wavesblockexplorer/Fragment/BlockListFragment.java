@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -22,6 +24,8 @@ import com.zneik.wavesblockexplorer.R;
 import com.zneik.wavesblockexplorer.base.BaseFragment;
 import com.zneik.wavesblockexplorer.di.BlockListModule;
 import com.zneik.wavesblockexplorer.di.DaggerAppComponent;
+
+import java.sql.Struct;
 
 import javax.inject.Inject;
 

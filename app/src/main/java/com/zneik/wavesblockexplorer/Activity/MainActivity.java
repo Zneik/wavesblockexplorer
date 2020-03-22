@@ -1,12 +1,17 @@
 package com.zneik.wavesblockexplorer.Activity;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.SearchView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.zneik.wavesblockexplorer.AppInit;
 import com.zneik.wavesblockexplorer.Fragment.BlockInfoFragment;
 import com.zneik.wavesblockexplorer.Fragment.BlockListFragment;
+import com.zneik.wavesblockexplorer.Helper.Helper;
 import com.zneik.wavesblockexplorer.Navigation.Screen.BlockInfoScreen;
 import com.zneik.wavesblockexplorer.Navigation.Screen.BlockListScreen;
 import com.zneik.wavesblockexplorer.R;
@@ -57,4 +62,29 @@ public class MainActivity extends AppCompatActivity
             finish();
         super.onBackPressed();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.svSearchBlock);
+        SearchView sv = (SearchView) searchItem.getActionView();
+        sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Integer value = Helper.isInteger(query);
+                if (value != null)
+                    attach(Integer.valueOf(query));
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        return true;
+    }
+
 }
