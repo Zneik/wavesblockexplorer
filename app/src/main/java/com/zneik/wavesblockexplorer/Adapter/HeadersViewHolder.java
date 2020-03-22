@@ -24,11 +24,14 @@ public class HeadersViewHolder extends RecyclerView.ViewHolder implements View.O
                              BlockInfoFragment.attachBlockInfoFragment openFragment) {
         super(itemView);
         this.openFragment = openFragment;
+        initView(itemView);
+        itemView.setOnClickListener(this);
+    }
 
+    private void initView(@NonNull View itemView) {
         tvBlockNTransaction = itemView.findViewById(R.id.tvBlockNTransaction);
         tvSignature = itemView.findViewById(R.id.tvSignature);
         tvDate = itemView.findViewById(R.id.tvDate);
-        itemView.setOnClickListener(this);
     }
 
     public void bind(Header header) {
@@ -46,6 +49,7 @@ public class HeadersViewHolder extends RecyclerView.ViewHolder implements View.O
 
     @Override
     public void onClick(View v) {
-        openFragment.attachBlockInfoFragment(this.header.getHeight());
+        openFragment.attach(this.header.getHeight());
     }
+
 }

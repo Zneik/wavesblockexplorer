@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -16,16 +14,25 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.zneik.wavesblockexplorer.Helper.Helper;
 import com.zneik.wavesblockexplorer.Model.BlockInfo.Transaction;
 import com.zneik.wavesblockexplorer.R;
+import com.zneik.wavesblockexplorer.base.BaseFragment;
+import com.zneik.wavesblockexplorer.di.BlockInfoModule;
+import com.zneik.wavesblockexplorer.di.DaggerAppComponent2;
 
-public class BlockInfoFragment extends Fragment {
+import javax.inject.Inject;
+
+public class BlockInfoFragment extends BaseFragment {
+    /**
+     * Arguments name
+     */
     public static final String ARG_HEIGHT = "argHeight";
 
-    //ui element
+    /**
+     * UI
+     */
     private LinearLayout llBlockInfo;
     private ScrollView svBlockInfo;
     private ProgressBar pbLoadBlockInfo;
@@ -40,8 +47,22 @@ public class BlockInfoFragment extends Fragment {
     private TextView tvTotalFee;
     private TextView tvReward;
 
-    private BlockInfoViewModel blockInfoViewModel;
+    /**
+     * Viewmodel
+     */
+    @Inject
+    public BlockInfoViewModel blockInfoViewModel;
 
+    public BlockInfoFragment() {
+        super(R.layout.fragment_block_info);
+    }
+
+    /**
+     * Create new instance
+     *
+     * @param height
+     * @return
+     */
     public static Fragment newInstance(Integer height) {
         Fragment f = new BlockInfoFragment();
         Bundle bundle = new Bundle();
@@ -53,49 +74,88 @@ public class BlockInfoFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        blockInfoViewModel = new ViewModelProvider(this).get(BlockInfoViewModel.class);
+        DaggerAppComponent2.builder()
+                .blockInfoModule(new BlockInfoModule(this))
+                .build()
+                .inject(this);
     }
 
-    @Nullable
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        View fView = inflater.inflate(R.layout.fragment_block_info, container, false);
-//        blockInfoViewModel.getLoading().setValue(false);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initViewElement(view);
+        retrieveArguments(getArguments());
+        initObserver();
+        loadingInfo();
+    }
 
-        initViewElement(fView);
+    /**
+     * loading blocks
+     */
+    private void loadingInfo() {
+        blockInfoViewModel.loadBlockInfo();
+    }
 
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            blockInfoViewModel.getHeight().setValue(arguments.getInt(ARG_HEIGHT));
-        }
-
+    /**
+     * Init observer
+     */
+    private void initObserver() {
         blockInfoViewModel.getBlockTransaction().observe(getViewLifecycleOwner(), this::setTransactionTV);
         blockInfoViewModel.getLoading().observe(getViewLifecycleOwner(), loaded -> {
             if (loaded) {
-                svBlockInfo.setVisibility(View.GONE);
-//                llBlockInfo.setVisibility(View.GONE);
-                pbLoadBlockInfo.setVisibility(View.VISIBLE);
+                visibleLoading();
             } else {
-                pbLoadBlockInfo.setVisibility(View.GONE);
-//                llBlockInfo.setVisibility(View.VISIBLE);
-                svBlockInfo.setVisibility(View.VISIBLE);
+                showInfo();
             }
         });
-
-        blockInfoViewModel.loadBlockInfo();
-        return fView;
     }
 
+    /**
+     * Убрать prograss bar, показать информацию о блоке
+     */
+    private void showInfo() {
+        pbLoadBlockInfo.setVisibility(View.GONE);
+        svBlockInfo.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Пока загружается информацию показываем progress bar
+     */
+    private void visibleLoading() {
+        svBlockInfo.setVisibility(View.GONE);
+        pbLoadBlockInfo.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Достать аргументы
+     *
+     * @param arguments
+     */
+    private void retrieveArguments(Bundle arguments) {
+        if (arguments != null) {
+            blockInfoViewModel.getHeight().setValue(arguments.getInt(ARG_HEIGHT));
+        }
+    }
+
+    /**
+     * Выделение
+     *
+     * @param view
+     * @param source
+     */
     private void setBoldPrefix(TextView view, String source) {
         SpannableString ss = new SpannableString(source);
         StyleSpan boldSpan = new StyleSpan(Typeface.BOLD);
         ss.setSpan(boldSpan, 0, source.indexOf(":") + 1, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         view.setText(ss);
-//        return ss.toString();
     }
 
+    /**
+     * Установить информацию о блоке в соответсвующие поля
+     *
+     * @param transaction
+     */
     private void setTransactionTV(Transaction transaction) {
         setBoldPrefix(tvHeight, getString(R.string.block_height,
                 String.valueOf(transaction.getHeight())));
@@ -119,6 +179,11 @@ public class BlockInfoFragment extends Fragment {
                 String.valueOf(transaction.getReward())));
     }
 
+    /**
+     * Инициализировать UI
+     *
+     * @param view
+     */
     private void initViewElement(View view) {
         svBlockInfo = view.findViewById(R.id.svBlockInfo);
         llBlockInfo = view.findViewById(R.id.llBlockInfo);
@@ -136,7 +201,7 @@ public class BlockInfoFragment extends Fragment {
     }
 
     public interface attachBlockInfoFragment {
-        public void attachBlockInfoFragment(Integer height);
+        void attach(Integer height);
     }
 
 }
