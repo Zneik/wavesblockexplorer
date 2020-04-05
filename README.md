@@ -6,6 +6,8 @@
 
 ### Детальная информация
 
-
 <img src="img/detail.png" width="300" height="500" />
 
+### Поиск
+
+<img src="img/search.png" width="300" height="500" />
